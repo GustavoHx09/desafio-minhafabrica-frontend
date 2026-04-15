@@ -20,7 +20,7 @@ export default function LoginPage() {
 
             localStorage.setItem("token", response.data.token);
 
-            router.push("/admin");
+            router.push("/admin/dashboard");
         } catch (err) {
             alert("Erro no login");
         }
