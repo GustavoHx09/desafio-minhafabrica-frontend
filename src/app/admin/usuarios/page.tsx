@@ -21,7 +21,27 @@ export default function Usuarios() {
     pass: "",
     profile: "user",
   });
+  
+  // atualiza o status da busca
+  const [search, setSearch] = useState("");
 
+  // filtro de usuários
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(search.toLowerCase()) ||
+    user.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // paginação de usuarios na tabela
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+
+  // botao de páginas
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+
+  // busca os usuarios no banco
   async function fetchUsers() {
     try {
       const res = await api.get("/users");
@@ -37,8 +57,9 @@ export default function Usuarios() {
     fetchUsers();
   }, []);
 
-  async function handleDelete(id: string) {
-    const confirmDelete = confirm("Tem certeza que deseja excluir?");
+  // função para deletar o usuário
+  async function handleDelete(id: string, userName: string) {
+    const confirmDelete = confirm(`Tem certeza que deseja excluir o usuário: ${userName}`);
     if (!confirmDelete) return;
 
     await api.delete(`/users/${id}`);
@@ -66,6 +87,18 @@ export default function Usuarios() {
         Novo Usuário
       </button>
 
+      <input
+        type="text"
+        placeholder="Buscar usuário..."
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setCurrentPage(1);
+          }
+        }
+        className="border p-2 mb-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
       {/* Tabela de usuarios */}
       <table className="w-full border">
         <thead className="bg-gray-200">
@@ -78,7 +111,7 @@ export default function Usuarios() {
         </thead>
 
         <tbody>
-          {users.map((user) => (
+          {currentUsers.map((user) => (
             <tr key={user._id} className="text-center border-t">
               <td className="p-2">{user.name}</td>
               <td className="p-2">{user.email}</td>
@@ -103,7 +136,7 @@ export default function Usuarios() {
                 </button>
 
                 <button
-                  onClick={() => handleDelete(user._id)}
+                  onClick={() => handleDelete(user._id, user.name)}
                   className="bg-red-500 text-white px-2 py-1 rounded">
                   Excluir
                 </button>
@@ -112,6 +145,43 @@ export default function Usuarios() {
           ))}
         </tbody>
       </table>
+      <div className="flex justify-center mt-4 gap-2">
+
+        {/* /////////////////
+        Botões das páginas 
+        //////////////////*/}
+
+        {/* Voltar */}
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+        >
+          Voltar
+        </button>
+
+        {/* Paginas */}
+        {Array.from({ length: totalPages }, (_, index) => (
+
+          <button
+            key={index}
+            onClick={() => setCurrentPage(index + 1)}
+            className={`px-3 py-1 rounded ${currentPage === index + 1
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200"
+              }`}
+          >
+            {index + 1}
+          </button>
+        ))}
+
+        {/* Avançar */}
+        <button
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
+        >
+          Próximo
+        </button>
+      </div>
       {
         openModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -167,7 +237,7 @@ export default function Usuarios() {
                 <button
                   onClick={async () => {
                     if (!form.name || !form.email) {
-                      alert("Preencha nome e email");
+                      alert("Preencher nome e email");
                       return;
                     }
 
@@ -186,7 +256,7 @@ export default function Usuarios() {
                         await api.put(`/users/${editingUser._id}`, payload);
                       } else {
                         if (!form.pass) {
-                          alert("Senha obrigatória");
+                          alert("O uso de senha é obrigatório");
                           return;
                         }
 
@@ -197,7 +267,7 @@ export default function Usuarios() {
                       setEditingUser(null);
                       fetchUsers();
                     } catch (err) {
-                      console.log(err);
+                      console.log("Erro ao salvar usuário no banco de dados!", err);
                     }
                   }}
                   className="bg-green-500 text-white px-3 py-1 rounded">
@@ -210,5 +280,4 @@ export default function Usuarios() {
       }
     </div >
   );
-
 }

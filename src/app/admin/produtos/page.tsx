@@ -14,9 +14,15 @@ type Product = {
 
 export default function Produtos() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  // define o estado do modal (editando/salvando)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  // abre o modal
   const [openModal, setOpenModal] = useState(false);
+
+  // mostra enquanto carrega os dados
+  const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
     name: "",
@@ -26,9 +32,26 @@ export default function Produtos() {
     category: "",
   });
 
-  // =========================
-  // LISTAR PRODUTOS
-  // =========================
+  // atualiza o status da busca
+  const [search, setSearch] = useState("");
+
+  // filtro de usuários
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(search.toLowerCase()) ||
+    product.category.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // paginação de usuarios na tabela
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 10;
+  const indexOfLastUser = currentPage * productsPerPage;
+  const indexOfFirstUser = indexOfLastUser - productsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirstUser, indexOfLastUser);
+
+  // botao de páginas
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+  // Busca os produtos no banco
   async function fetchProducts() {
     try {
       const res = await api.get("/products");
@@ -44,9 +67,9 @@ export default function Produtos() {
     fetchProducts();
   }, []);
 
-  // Confimação de exclusão
-  async function handleDelete(id: string) {
-    const confirmDelete = confirm("Tem certeza que deseja excluir?");
+  // Confimação de exclusão de produto
+  async function handleDelete(id: string, productName: string) {
+    const confirmDelete = confirm(`Tem certeza que deseja excluir o produto ${productName}?`);
     if (!confirmDelete) return;
 
     await api.delete(`/products/${id}`);
@@ -78,7 +101,20 @@ export default function Produtos() {
         Novo Produto
       </button>
 
-      {/* TABELA */}
+      {/* Campo de busca/filtro */}
+      <input
+        type="text"
+        placeholder="Buscar produto..."
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setCurrentPage(1);
+        }
+        }
+        className="border p-2 mb-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      {/* Tabela */}
       <table className="w-full border">
         <thead className="bg-gray-200">
           <tr>
@@ -91,7 +127,7 @@ export default function Produtos() {
         </thead>
 
         <tbody>
-          {products.map((product) => (
+          {currentProducts.map((product) => (
             <tr key={product._id} className="text-center border-t">
               <td className="p-2">{product.name}</td>
               <td className="p-2">R$ {product.price}</td>
@@ -117,7 +153,7 @@ export default function Produtos() {
                 </button>
 
                 <button
-                  onClick={() => handleDelete(product._id)}
+                  onClick={() => handleDelete(product._id, product.name)}
                   className="bg-red-500 text-white px-2 py-1 rounded"
                 >
                   Excluir
@@ -127,7 +163,43 @@ export default function Produtos() {
           ))}
         </tbody>
       </table>
+      <div className="flex justify-center mt-4 gap-2">
 
+        {/* /////////////////
+        Botões das páginas 
+        //////////////////*/}
+
+        {/* Voltar */}
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+        >
+          Voltar
+        </button>
+
+        {/* Paginas */}
+        {Array.from({ length: totalPages }, (_, index) => (
+
+          <button
+            key={index}
+            onClick={() => setCurrentPage(index + 1)}
+            className={`px-3 py-1 rounded ${currentPage === index + 1
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200"
+              }`}
+          >
+            {index + 1}
+          </button>
+        ))}
+
+        {/* Avançar */}
+        <button
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
+        >
+          Próximo
+        </button>
+      </div>
       {/* Modal */}
       {openModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -217,7 +289,7 @@ export default function Produtos() {
                     setEditingProduct(null);
                     fetchProducts();
                   } catch (err) {
-                    console.log(err);
+                    console.log("Erro ao tentar salvar no banco de dados!", err);
                   }
                 }}
                 className="bg-green-500 text-white px-3 py-1 rounded"
