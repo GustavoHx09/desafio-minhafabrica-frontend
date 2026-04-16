@@ -5,10 +5,12 @@ import { api } from "@/services/api";
 
 export default function Dashboard() {
     const [users, setUsers] = useState(0);
+    const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState(0);
 
     useEffect(() => {
         async function fetchData() {
+
             try {
                 const [usersRes, productsRes] = await Promise.all([
                     api.get("/users"),
@@ -20,14 +22,14 @@ export default function Dashboard() {
 
             } catch (err) {
                 console.log("Erro:", err);
+            } finally {
+                setLoading(false);
             }
         }
         fetchData();
     }, []);
 
-    if (users === null || products === null) {
-        return <p>Carregando...</p>;
-    }
+    if (loading) return <p>Carregando...</p>;
 
     return (
         <div>
