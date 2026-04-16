@@ -129,7 +129,7 @@ npm run dev
 
 ---
 
-##❗ Problemas comuns
+## ❗ Problemas comuns
 
 - ❌ Erro de CORS
 Verifique se o backend permite o domínio do frontend
