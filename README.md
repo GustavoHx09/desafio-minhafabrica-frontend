@@ -142,7 +142,7 @@ Verifique o .env.local
 
 ---
 
-##📄 Licença
+## 📄 Licença
 
 Este projeto é apenas para fins de estudo!
 
