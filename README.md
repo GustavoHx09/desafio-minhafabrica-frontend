@@ -1,36 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+📦 README - FRONTEND (README.md)
+# 🚀 Frontend - Desafio Minha Fábrica
 
-## Getting Started
+Este é o frontend da aplicação desenvolvido com Next.js, TypeScript, React e Tailwind.
 
-First, run the development server:
+---
+
+## 🛠️ Tecnologias utilizadas
+
+- Next.js
+- React
+- Axios
+- Tailwind CSS
+- TypeScript
+
+---
+
+## 📥 Instalação
+
 
 ```bash
+Clone o repositório:
+
+git clone https://github.com/seu-repo/frontend.git
+
+
+Entre na pasta:
+
+cd frontend
+
+
+Instale as dependências:
+
+npm install
+
+
+⚙️ Configuração do .env
+
+Crie um arquivo .env.local na raiz do projeto:
+
+NEXT_PUBLIC_API_URL=http://localhost:3001
+
+👉 Essa variável define a URL da API (backend)
+
+
+▶️ Rodando o projeto
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+O frontend estará disponível em:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+http://localhost:3000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+⚠️ IMPORTANTE (PORTAS)
 
-To learn more about Next.js, take a look at the following resources:
+Por padrão:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Frontend → 3000
+Backend → 3001
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+👉 Se quiser rodar ambos no mesmo PC, mantenha portas diferentes
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Se precisar mudar a porta do frontend:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+npm run dev -- -p 3002
+
+
+🔐 Autenticação
+
+O sistema usa token JWT armazenado no localStorage
+Algumas páginas são protegidas (ex: /admin)
+Sem token → redireciona para login
+
+
+🌐 Integração com Backend
+
+Todas as requisições são feitas via Axios:
+
+baseURL: process.env.NEXT_PUBLIC_API_URL + "/api/v1"
+
+
+📌 Funcionalidades
+Login
+CRUD de usuários
+CRUD de produtos
+Dashboard
+Filtro de busca
+Paginação
+
+
+🧪 Testando o sistema
+
+Para testar corretamente:
+
+Suba o backend
+Configure o .env.local
+Faça login
+Utilize as funcionalidades
+
+
+📦 Build para produção
+npm run build
+npm start
+
+
+❗ Problemas comuns
+
+❌ Erro de CORS
+Verifique se o backend permite o domínio do frontend
+
+❌ API não responde
+Verifique se o backend está rodando
+
+❌ URL undefined
+Verifique o .env.local
+
+
+📄 Licença
+
+Este projeto é apenas para fins de estudo!
