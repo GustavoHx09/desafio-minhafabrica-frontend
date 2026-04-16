@@ -9,6 +9,7 @@ Este é o frontend da aplicação desenvolvido com Next.js, TypeScript, React e 
 
 - Next.js
 - React
+- App Route
 - Axios
 - Tailwind CSS
 - TypeScript
