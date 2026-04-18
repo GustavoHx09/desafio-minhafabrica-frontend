@@ -65,6 +65,7 @@ export default function LoginPage() {
                     className="bg-blue-500 text-white p-2 w-full disabled:opacity-50"
                 >
                     {loading && <p className="text-sm text-gray-500 mb-2">Autenticando...</p>}
+                    Login
                 </button>
             </form>
         </div>
