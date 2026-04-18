@@ -5,6 +5,7 @@ import { api } from "@/services/api";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+    const [messageError, setMessagerror] = useState("");
     const [email, setEmail] = useState("");
     const [pass, setPass] = useState("");
     const router = useRouter();
@@ -23,9 +24,9 @@ export default function LoginPage() {
             router.push("/admin/dashboard");
         } catch (err: any) {
             if (err.response?.data?.message) {
-                alert(err.response.data.message);
+                setMessagerror(err.response.data.message);
             } else {
-                alert("Erro no login");
+                setMessagerror("Erro no login");
             }
         }
     }
@@ -34,6 +35,11 @@ export default function LoginPage() {
         <div className="flex h-screen items-center justify-center">
             <form onSubmit={handleLogin} className="p-6 bg-white rounded shadow">
                 <h1 className="text-xl mb-4">Login</h1>
+
+                {messageError && (
+                    <p className="text-red-500 mb-2">{messageError}</p>
+                )
+                }
 
                 <input
                     className="border p-2 w-full mb-2"

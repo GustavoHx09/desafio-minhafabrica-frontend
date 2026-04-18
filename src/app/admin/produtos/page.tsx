@@ -13,6 +13,9 @@ type Product = {
 };
 
 export default function Produtos() {
+  const [pageError, setPageError] = useState("");   // erros da tabela
+  const [modalError, setModalError] = useState(""); // erros do modal
+
   const [products, setProducts] = useState<Product[]>([]);
 
   // define o estado do modal (editando/salvando)
@@ -56,8 +59,8 @@ export default function Produtos() {
     try {
       const res = await api.get("/products");
       setProducts(res.data.product);
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
+      setPageError("Erro ao buscar produtos");
     } finally {
       setLoading(false);
     }
@@ -69,11 +72,19 @@ export default function Produtos() {
 
   // Confimação de exclusão de produto
   async function handleDelete(id: string, productName: string) {
-    const confirmDelete = confirm(`Tem certeza que deseja excluir o produto ${productName}?`);
-    if (!confirmDelete) return;
+    try {
+      const confirmDelete = confirm(`Tem certeza que deseja excluir o produto ${productName}?`);
+      if (!confirmDelete) return;
 
-    await api.delete(`/products/${id}`);
-    fetchProducts();
+      await api.delete(`/products/${id}`);
+      fetchProducts();
+    } catch (err: any) {
+      if (err.response?.data?.message) {
+        alert(err.response.data.message); // mostra resposta da API
+      } else {
+        alert("Erro ao deletar produto");
+      }
+    }
   }
 
   // Loading
@@ -86,6 +97,7 @@ export default function Produtos() {
       {/* Botão para criar usuario */}
       <button
         onClick={() => {
+          setModalError("");
           setEditingProduct(null);
           setForm({
             name: "",
@@ -139,6 +151,7 @@ export default function Produtos() {
               <td className="p-2 flex justify-center gap-2">
                 <button
                   onClick={() => {
+                    setModalError("");
                     setEditingProduct(product);
                     setForm({
                       name: product.name,
@@ -202,7 +215,11 @@ export default function Produtos() {
           Próximo
         </button>
       </div>
-
+      {
+        pageError && (
+          <p className="text-red-500 mb-2">{pageError}</p>
+        )
+      }
       {/* Modal */}
       {openModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -210,6 +227,10 @@ export default function Produtos() {
             <h2 className="text-xl mb-4">
               {editingProduct ? "Editar Produto" : "Novo Produto"}
             </h2>
+
+            {modalError && (
+              <p className="text-red-500 mb-2">{modalError}</p>
+            )}
 
             <input
               placeholder="Nome"
@@ -258,7 +279,11 @@ export default function Produtos() {
 
             <div className="flex justify-end gap-2">
               <button
-                onClick={() => setOpenModal(false)}
+                onClick={() => {
+                  setPageError("");
+                  setOpenModal(false)
+                }
+                }
               >
                 Cancelar
               </button>
@@ -266,7 +291,7 @@ export default function Produtos() {
               <button
                 onClick={async () => {
                   if (!form.name || !form.price || !form.quantityInStock || !form.category) {
-                    alert("Campos obrigatórios: nome, preço, estoque e categoria!");
+                    setModalError("Campos obrigatórios: nome, preço, estoque e categoria!");
                     return;
                   }
 
@@ -290,9 +315,14 @@ export default function Produtos() {
 
                     setOpenModal(false);
                     setEditingProduct(null);
+                    setPageError("");
                     fetchProducts();
-                  } catch (err) {
-                    console.log("Erro ao tentar salvar no banco de dados!", err);
+                  } catch (err: any) {
+                    if (err.response?.data?.message) {
+                      setModalError(err.response.data.message); // salva e depois exibe a resposta da API
+                    } else {
+                      setModalError("Erro ao salvar produto");
+                    }
                   }
                 }}
                 className="bg-green-500 text-white px-3 py-1 rounded"

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/services/api";
 
 export default function Dashboard() {
+    const [errorMessage, setErrorMessage] = useState("");
     const [users, setUsers] = useState(0);
     const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState(0);
@@ -21,7 +22,7 @@ export default function Dashboard() {
                 setProducts(productsRes.data.product.length);
 
             } catch (err) {
-                console.log("Erro ao carregar dados: ", err);
+                setErrorMessage("Erro ao carregar dados");
             } finally {
                 setLoading(false);
             }
@@ -34,6 +35,11 @@ export default function Dashboard() {
     return (
         <div className="p-6">
             <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+            {
+                errorMessage && (
+                    <p className="text-red-500 mb-2">{errorMessage}</p>
+                )
+            }
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 

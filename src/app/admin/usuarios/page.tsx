@@ -11,6 +11,8 @@ type User = {
 };
 
 export default function Usuarios() {
+  const [pageError, setPageError] = useState("");   // erros da tabela
+  const [modalError, setModalError] = useState(""); // erros do modal
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -47,7 +49,7 @@ export default function Usuarios() {
       const res = await api.get("/users");
       setUsers(res.data.user);
     } catch (err) {
-      console.log(err);
+      setPageError("Erro ao buscar usuários");
     } finally {
       setLoading(false);
     }
@@ -59,11 +61,19 @@ export default function Usuarios() {
 
   // função para deletar o usuário
   async function handleDelete(id: string, userName: string) {
-    const confirmDelete = confirm(`Tem certeza que deseja excluir o usuário: ${userName}`);
-    if (!confirmDelete) return;
+    try {
+      const confirmDelete = confirm(`Tem certeza que deseja excluir o usuário: ${userName}`);
+      if (!confirmDelete) return;
 
-    await api.delete(`/users/${id}`);
-    fetchUsers();
+      await api.delete(`/users/${id}`);
+      fetchUsers();
+    } catch (err: any) {
+      if (err.response?.data?.message) {
+        alert(err.response.data.message); // mostra resposta da API
+      } else {
+        alert("Erro ao deletar usuário");
+      }
+    }
   }
 
   if (loading) return <p>Carregando...</p>;
@@ -75,6 +85,8 @@ export default function Usuarios() {
       {/* criar usuario */}
       <button
         onClick={() => {
+          setModalError("");
+          setEditingUser(null)
           setForm({
             name: "",
             email: "",
@@ -120,7 +132,7 @@ export default function Usuarios() {
               <td className="p-2 flex justify-center gap-2">
                 <button
                   onClick={() => {
-                    console.log(user);
+                    setModalError("");
                     setEditingUser(user);
                     setForm({
                       name: user.name,
@@ -136,7 +148,7 @@ export default function Usuarios() {
                 </button>
 
                 <button
-                  onClick={() => handleDelete(user._id, user.name)}
+                  onClick={async () => handleDelete(user._id, user.name)}
                   className="bg-red-500 text-white px-2 py-1 rounded">
                   Excluir
                 </button>
@@ -182,6 +194,12 @@ export default function Usuarios() {
           Próximo
         </button>
       </div>
+
+      {pageError && (
+          <p className="text-red-500 mb-2">{pageError}</p>
+        )
+      }
+
       {
         openModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -189,6 +207,12 @@ export default function Usuarios() {
               <h2 className="text-xl mb-4">
                 {editingUser ? "Editar Usuário" : "Novo Usuário"}
               </h2>
+
+              {
+                modalError && (
+                  <p className="text-red-500 mb-2">{modalError}</p>
+                )
+              }
 
               <input
                 placeholder="Nome"
@@ -230,14 +254,19 @@ export default function Usuarios() {
               </select>
 
               <div className="flex justify-end gap-2">
-                <button onClick={() => setOpenModal(false)}>
+                <button onClick={() => {
+                  setPageError("");
+                  setOpenModal(false)
+                }
+                }
+                >
                   Cancelar
                 </button>
 
                 <button
                   onClick={async () => {
                     if (!form.name || !form.email) {
-                      alert("Preencher nome e email");
+                      setModalError("Campos obrigatórios: nome, email");
                       return;
                     }
 
@@ -256,7 +285,7 @@ export default function Usuarios() {
                         await api.put(`/users/${editingUser._id}`, payload);
                       } else {
                         if (!form.pass) {
-                          alert("O uso de senha é obrigatório");
+                          setModalError("Campos obrigatórios: nome, email e senha!");
                           return;
                         }
                         await api.post("/users", form);
@@ -264,14 +293,14 @@ export default function Usuarios() {
 
                       setOpenModal(false);
                       setEditingUser(null);
+                      setPageError("");
                       fetchUsers();
-                      
+
                     } catch (err: any) {
                       if (err.response?.data?.message) {
-                        console.log(err);
-                        alert(err.response.data.message); // mostra resposta da API para email ja cadastrado no sistema
+                        setModalError(err.response.data.message) // mostra resposta da API para email ja cadastrado no sistema
                       } else {
-                        alert("Erro ao salvar usuário");
+                        setModalError("Erro ao salvar usuário")
                       }
                     }
                   }}
