@@ -62,10 +62,9 @@ export default function LoginPage() {
 
                 <button
                     disabled={loading}
-                    className="bg-blue-500 text-white p-2 w-full disabled:opacity-50"
+                    className="bg-blue-500 text-white p-2 w-full disabled:opacity-80"
                 >
-                    {loading && <p className="text-sm text-white mb-2">Autenticando...</p>}
-                    Login
+                    {loading ? "Autenticando..." : "Login"}
                 </button>
             </form>
         </div>
