@@ -21,8 +21,12 @@ export default function LoginPage() {
             localStorage.setItem("token", response.data.token);
 
             router.push("/admin/dashboard");
-        } catch (err) {
-            alert("Erro no login");
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                alert(err.response.data.message);
+            } else {
+                alert("Erro no login");
+            }
         }
     }
 

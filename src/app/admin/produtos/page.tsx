@@ -119,6 +119,7 @@ export default function Produtos() {
         <thead className="bg-gray-200">
           <tr>
             <th className="p-2">Nome</th>
+            <th className="p-2">Descrição</th>
             <th className="p-2">Preço</th>
             <th className="p-2">Estoque</th>
             <th className="p-2">Categoria</th>
@@ -130,6 +131,7 @@ export default function Produtos() {
           {currentProducts.map((product) => (
             <tr key={product._id} className="text-center border-t">
               <td className="p-2">{product.name}</td>
+              <td className="p-2">{product.description}</td>
               <td className="p-2">R$ {product.price}</td>
               <td className="p-2">{product.quantityInStock}</td>
               <td className="p-2">{product.category}</td>
@@ -200,6 +202,7 @@ export default function Produtos() {
           Próximo
         </button>
       </div>
+
       {/* Modal */}
       {openModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -262,8 +265,8 @@ export default function Produtos() {
 
               <button
                 onClick={async () => {
-                  if (!form.name || !form.price) {
-                    alert("Preencha nome e preço");
+                  if (!form.name || !form.price || !form.quantityInStock || !form.category) {
+                    alert("Campos obrigatórios: nome, preço, estoque e categoria!");
                     return;
                   }
 

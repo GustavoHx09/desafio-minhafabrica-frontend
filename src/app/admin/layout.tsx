@@ -7,7 +7,6 @@ import AuthGuard from "@/components/AuthGuard";
 export default function AdminLayout({ children }: any) {
 
   return (
-
     <AuthGuard>
       <div className="flex min-h-screen">
         {/* Sidebar */}

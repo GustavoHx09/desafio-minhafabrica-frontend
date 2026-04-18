@@ -21,7 +21,7 @@ export default function Usuarios() {
     pass: "",
     profile: "user",
   });
-  
+
   // atualiza o status da busca
   const [search, setSearch] = useState("");
 
@@ -94,7 +94,7 @@ export default function Usuarios() {
         onChange={(e) => {
           setSearch(e.target.value);
           setCurrentPage(1);
-          }
+        }
         }
         className="border p-2 mb-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
@@ -259,15 +259,20 @@ export default function Usuarios() {
                           alert("O uso de senha é obrigatório");
                           return;
                         }
-
                         await api.post("/users", form);
                       }
 
                       setOpenModal(false);
                       setEditingUser(null);
                       fetchUsers();
-                    } catch (err) {
-                      console.log("Erro ao salvar usuário no banco de dados!", err);
+                      
+                    } catch (err: any) {
+                      if (err.response?.data?.message) {
+                        console.log(err);
+                        alert(err.response.data.message); // mostra resposta da API para email ja cadastrado no sistema
+                      } else {
+                        alert("Erro ao salvar usuário");
+                      }
                     }
                   }}
                   className="bg-green-500 text-white px-3 py-1 rounded">
